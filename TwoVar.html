@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>List of Numbers</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+  </head>
+  <body class=americanize>
+    <h1>Two Variable Graphs</h1>
+    <p><b>You MUST Seperate with Commas! (No spaces PLS)</b>. Prediction 0 = No Prediction</p>
+    <input type="text" id="title" placeholder="Enter Title" value="test">
+    <input type="text" id="xValues" placeholder="Enter x Values (Names)" value="1,3,5,3,3,3">
+    <input type="text" id="yValues" placeholder="Enter y Values (Numbers)" value="1,4,5,8,5,3">
+    <input type="text" id="xprediction" placeholder="x Prediction Length (units)" value="5">
+    <input type="text" id="yprediction" placeholder="y Prediction Length (units)" value="5">
+    <button onclick="calculate()">Calculate</button>
+
+    <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+
+    <script>
+      function calculate() {
+        const xValues = document.getElementById('xValues').value;
+        const yValues = document.getElementById('yValues').value;
+        const xPrediction = document.getElementById('xprediction').value;
+        const yPrediction = document.getElementById('yprediction').value;
+        const xArray = xValues.split(',');
+        const yArray = yValues.split(',');
+        let xyValues = [];
+        for (let i =  0; i < xArray.length; i++){ 
+          xyValues[i] = {x:parseFloat(xArray[i]) ,y:parseFloat(yArray[i])}
+        }
+        const datasetFormatter = (data, color)=>({
+          fill: false,
+          lineTension: 0,
+          pointRadius: 4,
+          pointBackgroundColor: color,
+          data, 
+          showLine: true
+        })
+        // let chartDatasets = [datasetFormatter(xyValues, 'blue')];
+        let chartDatasets = [{
+            pointRadius: 4,
+            pointBackgroundColor: "rgb(0,0,255)",
+            data: xyValues
+          }];
+
+        const xmin = Math.min(...xyValues.map(d=>d.x));
+        const xmax = Math.max(...xyValues.map(d=>d.x));
+        const ymin = Math.min(...xyValues.map(d=>d.y));
+        const ymax = Math.max(...xyValues.map(d=>d.y));
+        const xPred = xmax + parseFloat(xPrediction);
+        const yPred = ymax + parseFloat(yPrediction);
+        function generateChart(){
+          new Chart("myChart", {
+            type: "scatter",
+            data: {
+              datasets: chartDatasets
+              
+            },
+           
+            options: {
+              legend: {display: false},
+              scales: {
+                xAxes: [{ticks: {min: xmin, max: xPred}}],
+                yAxes: [{ticks: {min: ymin, max: yPred}}],
+              }
+            }
+          });
+        }
+        generateChart();
+
+        function getY(m,c,x){
+          return (m*x)+c;
+        }
+
+        function getSlopeConstant(point1, point2){
+          const m = Math.abs(point2.y-point1.y)/Math.abs(point2.x-point1.x);
+          const c = point1.y - m*point1.x;
+          return {m,c};
+        }
+        const slopeIntercept = getSlopeConstant(xyValues[0],xyValues[xyValues.length-1]);
+        const newCoordinates = [];
+        xyValues.forEach(coordinates=>{
+          newCoordinates.push({
+            x: coordinates.x,
+            y: getY(slopeIntercept.m, slopeIntercept.c, coordinates.x)
+          })
+        })
+        
+        generateChart();
+
+        // Least square 
+        const xMean = xyValues.map(d=>d.x).reduce((a,b)=>a+b)/xyValues.length
+        const yMean = xyValues.map(d=>d.y).reduce((a,b)=>a+b)/xyValues.length
+
+        let mSlopeNumerator = 0;
+        xyValues.forEach((coordinates) => { 
+          mSlopeNumerator += (coordinates.x-xMean)*(coordinates.y-yMean);
+        });
+
+        let mSlopeDenominator = 0;
+        xyValues.forEach((coordinates) => {
+          mSlopeDenominator += Math.pow((coordinates.x-xMean),2);
+        });
+        const leastSquareSlope = mSlopeNumerator/mSlopeDenominator;
+        let leastSquareIntercept = yMean - (leastSquareSlope*xMean);
+        leastSquareIntercept = Number(leastSquareIntercept.toFixed(2))
+
+        const newCoordinatesLeastSquare = [];
+        xyValues.forEach(coordinates=>{
+          newCoordinatesLeastSquare.push({
+            x: coordinates.x,
+            y: getY(leastSquareSlope, leastSquareIntercept, coordinates.x)
+          })
+        })
+        chartDatasets = [...chartDatasets, datasetFormatter(newCoordinatesLeastSquare, 'yellow')];
+        let bestfitDatasets = [{
+          pointRadius: 4,
+          pointBackgroundColor: "rgb(0,0,255)",
+          data: newCoordinatesLeastSquare
+        }];
+        generateChart();
+        if (xArray.length != yArray.length){
+          alert("Graph is innacurate, the number of x and y values must be the same.")
+        }
+      }
+    </script>
+  </body>
+</html>

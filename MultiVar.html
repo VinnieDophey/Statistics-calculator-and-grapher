@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>List of Numbers</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+</head>
+
+<body>
+  <h1>Multiple Variable Graphs</h1>
+  <h2>Create Bar Graph:</h2>
+  <p><b>You MUST Seperate with Commas! (No spaces PLS)</b>. Title is the title of the graph, xValues is the qualitative names on the x axis, y values are the quantitative numbers on the y axis.</p>
+  <input type="text" id="title" placeholder="Enter Title">
+  <input type="text" id="xValues" placeholder="Enter Labels">
+  <input type="text" id="yValues" placeholder="Enter Values">
+  <button onclick="calculate()">Calculate</button>
+
+  <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+  <canvas id="myChart2" style="width:100%;max-width:600px"></canvas>
+
+  <script>
+    function calculate() {
+      const Title = document.getElementById('title').value;
+      const Title1 = document.getElementById('title').value;
+      const input = document.getElementById('xValues').value;
+      const input2 = document.getElementById('yValues').value;
+      const xVar = input.split(',');
+      const yVar = input2.split(',');
+      
+  
+      if (xVar.length == yVar.length) {
+        let xValues = xVar;
+        let yValues = yVar;
+        var barColors = ["red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink","red", "green", "blue", "orange", "brown","yellow","violet","purple","pink"];
+  
+        new Chart("myChart", {
+          type: "bar",
+          data: {
+            labels: xValues,
+            datasets: [{
+              backgroundColor: barColors,
+              data: yValues
+            }]
+          },
+          options: {
+            legend: {display: false},
+            title: {
+              display: true,
+              text: Title
+            }
+          }
+        });
+
+        var barColors1 = [
+          "#b91d47",
+          "#00aba9",
+          "#2b5797",
+          "#e8c3b9",
+          "#1e7145",
+          "#b91d47",
+          "#00aba9",
+          "#2b5797",
+          "#e8c3b9",
+          "#1e7145",
+          "#b91d47",
+          "#00aba9",
+          "#2b5797",
+          "#e8c3b9",
+          "#1e7145",
+          "#b91d47",
+          "#00aba9",
+          "#2b5797",
+          "#e8c3b9",
+          "#1e7145"
+        ];
+
+        new Chart("myChart2", {
+          type: "pie",
+          data: {
+            labels: xValues,
+            datasets: [{
+              backgroundColor: barColors1,
+              data: yValues
+            }]
+          },
+          options: {
+            title: {
+              display: true,
+              text: Title1
+            }
+          }
+        });
+    } else {
+       alert("Cannot create graph. The amount of y values must be equal to amount of x values.")
+    } // end of If
+  }  // end of function
+      
+    
+    
+    
+  </script>
+
+</body>
+
+</html>

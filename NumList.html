@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>List of Numbers</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
+</head>
+
+<body>
+  <h1>List of Numbers</h1>
+  <p><b>You MUST separate with varaibles! (No Spaces PLS)</b></p>
+
+  <input type="text" id="numbersInput" placeholder="Enter numbers" value="13,21,21,40,42,48,55,72">
+
+  <button onclick="calculate()">Calculate</button>
+
+  <h2>Mean</h2>
+  <p id="mean">will show here</p>
+  <h2>Median</h2>
+  <p id="median">will show here</p>
+  <h2>Mode</h2>
+  <p id="mode">will show here</p>
+  <h2>Range</h2>
+  <p id="range">Range will show here</p>
+  <p id="intrange"> InterQuartile Range will show here</p>
+  <h2>Quartiles </h2>
+  <p>(Testing comparison: https://www.w3schools.com/statistics/tryr.asp?filename=demo_stat_r_quartiles)</p>
+  <p id="Q1">25% Quartile will show here</p>
+  <p id="Q2">50% Quartile will show here</p>
+  <p id="Q3">75% Quartile will show here</p>
+  <h2>Outliers</h2>
+  <p id="Outliers">Outliers will show here</p>
+  <h2>Box Plot</h2>
+
+  <div id='myDiv'>
+    <!-- Plotly chart will be drawn inside this DIV -->
+  </div>
+
+
+  <script>
+    // sort array ascending
+    const asc = arr => arr.sort((a, b) => a - b);
+
+    function calculate() {
+      const input = document.getElementById('numbersInput').value;
+      const numbersArray = input.split(',');
+      let sum = 0;
+      let modeMap = {}; //  store  frequency of each number
+      let maxFreq = 0;
+      let mode;
+      let maxNumber = NaN;
+      let minNumber = NaN;
+
+
+      //calc mode
+      for (let i = 0; i < numbersArray.length; i++) {
+        const number = parseFloat(numbersArray[i]);
+        if (!isNaN(number)) {
+          sum += number; // this is for mean but like i just put it here cuz y not
+
+
+          if (!modeMap[number]) {
+            modeMap[number] = 1;
+          } else {
+            modeMap[number]++;
+          }
+        }
+      }
+      var items = Object.keys(modeMap).map(function (key) {
+        return [key, modeMap[key]];
+      });
+      items.sort(function (first, second) {
+        return second[1] - first[1];
+      });
+
+      let first = items[0][1];
+
+      let modes = "" + items[0][0];
+      for (let i = 1; i < items.length; i++) {
+        if (items[i][1] == first) {
+          modes += ", " + items[i][0];
+        } else {
+          break;
+        }
+      }
+
+      document.getElementById("mode").innerHTML = "Mode: " + modes;
+
+
+
+
+      // calc mean
+      let mean = sum / numbersArray.length;
+
+      if (!isNaN(mean)) {
+        document.getElementById("mean").innerHTML = "Mean: " + mean.toFixed(2);
+      } else {
+        document.getElementById("mean").innerHTML = "Mean: Invalid input";
+      }
+
+      //calc median
+
+      sorted = numbersArray.sort(function (a, b) {return a - b});
+
+      const oddmedian = Math.ceil(sorted.length / 2);
+
+      if (sorted.length % 2 === 0) {
+        const evenmedian = (parseFloat(sorted[oddmedian - 1]) + parseFloat(sorted[oddmedian])) / 2;
+
+
+        document.getElementById("median").innerHTML = "Median:" + evenmedian;
+
+        document.getElementById("Q2").innerHTML = "Median:" + evenmedian;
+      }
+      else {
+
+        document.getElementById("median").innerHTML = "Median:" + oddmedian;
+        document.getElementById("Q2").innerHTML = "Second Quartile:" + oddmedian;
+      }
+
+      //calc range
+
+      let min = parseFloat(sorted[0]);
+      let max = parseFloat(sorted[numbersArray.length - 1]);
+      let range = max - min;
+      if (!isNaN(range)) {
+        document.getElementById("range").innerHTML = "Range: " + range;
+      }
+      else {
+        document.getElementById("range").innerHTML = "Range: Not computable";
+      }
+
+
+      // calMode();
+      // calMedian();
+      // calRange();
+      // calMean();
+      calculateOutliers();
+      function calculateOutliers() {
+        const input = document.getElementById('numbersInput').value;
+        const numbersArray = input.split(',');
+        let sorted = numbersArray.map(Number).sort((a, b) => a - b);
+        let Q1 = getQuartile(sorted, .25);
+        let Q2 = getQuartile(sorted, .50); // Median 
+        let Q3 = getQuartile(sorted, .75);
+        let IQR = Q3 - Q1;
+        let lowerBound = Q1 - 1.5 * IQR;
+        let upperBound = Q3 + 1.5 * IQR;
+        let outliers = numbersArray.filter(num => num < lowerBound || num > upperBound);
+        console.log("Outliers: " + outliers);
+        document.getElementById("Outliers").innerHTML = "Outliers: " + outliers;
+        document.getElementById("Q1").innerHTML = "25% First Quartile: " + Q1;
+        document.getElementById("Q2").innerHTML = "50% Quartile: " + Q2;
+        document.getElementById("Q3").innerHTML = "75% Quartile: " + Q3;
+        document.getElementById("intrange").innerHTML = "Interquartile Range: " + IQR;
+      }
+
+
+      function getQuartile(arr, q) {
+        const sorted = asc(arr);
+        console.log(sorted);
+        const pos = (sorted.length - 1) * q;
+        const base = Math.floor(pos);
+        const rest = pos - base;
+        if (sorted[base + 1] !== undefined) {
+          return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+        } else {
+          return sorted[base];
+        }
+      }
+
+      // function getQuartile(arr, q) {
+      //   const pos = (arr.length - 1) * q;
+      //   const base = Math.floor(pos);
+      //   const rest = pos - base;
+
+      //   if (arr.length % 2 === 0) {
+      //     // For even-length arrays, calculate the quartile as the average of the two middle elements
+      //     return (arr[base] + arr[base + 1]) / 2;
+      //   } else {
+      //     return arr[base];
+      //   }
+      // }
+
+
+
+
+
+
+      var data = [
+        {
+          x: numbersArray,
+          boxpoints: 'all',
+          jitter: 0.3,
+          pointpos: -1.8,
+          type: 'box'
+        }
+      ];
+
+      Plotly.newPlot('myDiv', data);
+    }
+
+  </script>
+
+
+</body>
+
+</html>
